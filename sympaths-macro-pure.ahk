@@ -13,8 +13,10 @@ OnKeyPress(ThisHotkey)
   SetKeyDelay 5,5
   While GetKeyState(SubStr(ThisHotkey,2), "P") 
   {
-    Send '{' SubStr(ThisHotkey,2) '}'
-    Sleep 50
+    if (GetKeyState(SubStr(ThisHotkey,2), "P")) {
+      Send '{' SubStr(ThisHotkey,2) '}'
+    }
+    Sleep 5
   }
 }
 OnKeyPressClaws(ThisHotkey)
