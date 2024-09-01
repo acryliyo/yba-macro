@@ -1,3 +1,8 @@
+; !!! THIS IS DEPRECTATED NOW, USE GUI.ahk
+; !!! THIS IS DEPRECTATED NOW, USE GUI.ahk
+; !!! THIS IS DEPRECTATED NOW, USE GUI.ahk
+; !!! THIS IS DEPRECTATED NOW, USE GUI.ahk
+
 #Requires AutoHotkey v2.0
 on := False
 claws := "9" ; set this to the slot your claws are on
