@@ -6,10 +6,46 @@ F4::{
     SoundBeep 1000 + 500 * on
 }
 #HotIf on
-; change these keys to the keys you want binded to come after 9
+Compare(a,b)
+{
+  return ("s" == a and "w" == b or "w" == a and "s" == b or "a" == a and "d" == b or "d" == a and "a" == b)
+}
+OnWASD(ThisHotkey)
+{
+  hotkeys := ["w","a","s","d"]
+  For i in hotkeys {
+    if (ThisHotkey != i) {
+      if (!GetKeyState(i,"P")) {
+        Send "{" . i . " up}"
+      } else {
+        if (Compare(i,ThisHotkey)) {
+          Send "{" . i . " up}"
+        }
+      }
+      
+    } else {
+      Send "{" . i . " down}"
+      
+    }
+  }
+}
+OnWASDUp(ThisHotkey)
+{
+  Send "{" . ThisHotkey . "}"
+  hotkeys := ["w","a","s","d"]
+  For i in hotkeys {
+    if (ThisHotkey != i) {
+      if (GetKeyState(i,"P")) {
+        Send "{" . i . " down}"
+      }
+    }
+  }
+}
 OnKeyPress(ThisHotkey)
 {
-  Send "{Alt Up}"
+  Send "{f up}"
+  Send "{alt up}"
+  
   SetKeyDelay 5,5
   While GetKeyState(SubStr(ThisHotkey,2), "P") 
   {
@@ -21,13 +57,14 @@ OnKeyPress(ThisHotkey)
 }
 OnKeyPressClaws(ThisHotkey)
 {
-    Send "{Alt Up}"
+    Send "{f up}"
+    Send "{alt Up}"
     Send claws
     Send StrLower(SubStr(ThisHotkey,2,1))
     ; MsgBox(StrLower(SubStr(ThisHotkey,2,1)))
     Send claws
 }
-
+; change these keys to the ones you want macrod
 *q::
 *n::
 *r::
@@ -40,11 +77,24 @@ OnKeyPressClaws(ThisHotkey)
 *y:: {
     OnKeyPress(ThisHotkey)
 }
+; change these keys to the boxing moves
 *K::
 *C::
 *V::
 *B::
 *M::{
     OnKeyPressClaws(ThisHotkey)
+}
+w::
+a::
+s::
+d::{
+  OnWASD(ThisHotkey)
+}
+w up::
+a up::
+s up::
+d up::{
+  OnWASDUp(ThisHotkey)
 }
 #HotIf
