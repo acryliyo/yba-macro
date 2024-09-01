@@ -44,7 +44,9 @@ OnWASDUp(ThisHotkey)
 OnKeyPress(ThisHotkey)
 {
   Send "{f up}"
-  Send "{alt up}"
+  if(!GetKeyState("LAlt","P")) {
+    Send "{alt up}"
+  }
   
   SetKeyDelay 5,5
   While GetKeyState(SubStr(ThisHotkey,2), "P") 
@@ -74,6 +76,7 @@ OnKeyPressClaws(ThisHotkey)
 *j::
 *h::
 *g::
+*LAlt::
 *y:: {
     OnKeyPress(ThisHotkey)
 }
