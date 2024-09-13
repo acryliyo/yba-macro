@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#MaxThreadsPerHotkey 1
 ; TODO: FIX KEYS STILL BEING HELD DOWN
 window := Gui("Border","acry macro")
 window.Add("Text","","boxing claws key: ")
@@ -13,13 +14,66 @@ boxingMacroActivated := window.Add("CheckBox", "vBoxingMacroActivated", "activat
 macroActivated := window.Add("CheckBox", "vMacroActivated", "activate key macro (WARNING: BUGGY)")
 undoActivated := window.Add("CheckBox", "vUnBarrageActivated", "activate unbarrage/block macro")
 WASDActivated := window.Add("CheckBox", "vWASDMacroActivated", "activate wasd macro (WARNING: BUGGY)")
+window.Add("Text","","Deactivation hotkey: ")
+DeactivateHotkey := window.Add("Hotkey", "vWASDDeactivateHotkey")
+QuickDeactivate := window.Add("CheckBox", "vQuickDeactivate", "Quick Activate/deactivate (same as deactivation hotkey)")
 LoadConfigButton := window.Add("Button","vLoadConfig","Load Config")
 window.Add("Text","","If you name the config defaultConfig.txt then it autoloads it")
 SaveConfigButton := window.Add("Button","vSaveConfig","Save Config")
 
+CurrentDeactivationHotkey := ""
 keybindsActive := []
+QuickSettings := []
 boxingGlovesActive := false
 
+setting(gui) 
+{
+  if (gui.Value) {
+    QuickSettings.Push(gui)
+  }
+}
+QuickActivate(activated)
+{
+  global
+
+  if(activated) {
+    for i, v in QuickSettings
+    {
+      v.Value := true
+    }
+  } else {
+    QuickSettings := []
+    setting(boxingMacroActivated)
+    setting(macroActivated)
+    setting(undoActivated)
+    setting(WASDActivated)
+    for i, v in QuickSettings
+    {
+      v.Value := false
+    }
+  }
+  SetClawsMacro(1,2)
+  SetMacroKeys(1,2)
+}
+QuickActivateKeybind(a)
+{
+  global
+  QuickDeactivate.Value := !QuickDeactivate.Value
+  QuickActivate(QuickDeactivate.Value)
+}
+OnActivateHotkeyPress(a,b)
+{
+  global
+  if (CurrentDeactivationHotkey != "") {
+    Hotkey DeactivateHotkey.Value,QuickActivateKeybind, "Off"
+  }
+  Hotkey DeactivateHotkey.Value, QuickActivateKeybind
+  CurrentDeactivationHotkey := DeactivateHotkey.Value
+}
+OnQuickActivateToggle(a,b)
+{
+  QuickActivate(QuickDeactivate.Value)
+}
 loadConfig(fileName)
 {
   SelectedFile := ""
@@ -220,11 +274,13 @@ WASDActivated_Click(awd,awd2) {
   }
 }
 macroActivated.OnEvent("Click",SetMacroKeys)
+DeactivateHotkey.OnEvent("Change",OnActivateHotkeyPress)
 undoActivated.OnEvent("Click",SetMacroKeys)
 boxingMacroActivated.OnEvent("Click",SetClawsMacro)
 keysToMacro.OnEvent("LoseFocus",SetMacroKeys)
 boxingBinds.OnEvent("LoseFocus",SetClawsMacro)
 WASDActivated.OnEvent("Click",WASDActivated_Click)
+QuickDeactivate.OnEvent("Click",OnQuickActivateToggle)
 
 window.Show()
 OnClose(asd)
