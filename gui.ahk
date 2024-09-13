@@ -1,5 +1,7 @@
 #Requires AutoHotkey v2.0
 #MaxThreadsPerHotkey 1
+#MaxThreadsBuffer true
+#MaxThreads 1
 ; TODO: FIX KEYS STILL BEING HELD DOWN
 window := Gui("Border","acry macro")
 window.Add("Text","","boxing claws key: ")
