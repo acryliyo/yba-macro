@@ -13,9 +13,8 @@ keysToMacro := window.Add("Edit", "vkeysToMacro", "")
 window.Add("Text","","macro delay: ")
 MacroDelay := window.Add("Edit", "vMacroDelay", "")
 boxingMacroActivated := window.Add("CheckBox", "vBoxingMacroActivated", "activate boxing macro")
-macroActivated := window.Add("CheckBox", "vMacroActivated", "activate key macro (WARNING: BUGGY)")
+macroActivated := window.Add("CheckBox", "vMacroActivated", "activate key macro")
 undoActivated := window.Add("CheckBox", "vUnBarrageActivated", "activate unbarrage/block macro")
-WASDActivated := window.Add("CheckBox", "vWASDMacroActivated", "activate wasd macro (WARNING: BUGGY)")
 window.Add("Text","","deactivation hotkey: ")
 DeactivateHotkey := window.Add("Hotkey", "vWASDDeactivateHotkey")
 QuickDeactivate := window.Add("CheckBox", "vQuickDeactivate", "Quick Activate/deactivate (same as deactivation hotkey)")
@@ -48,7 +47,6 @@ QuickActivate(activated)
     setting(boxingMacroActivated)
     setting(macroActivated)
     setting(undoActivated)
-    setting(WASDActivated)
     for i, v in QuickSettings
     {
       v.Value := false
@@ -150,36 +148,6 @@ Compare(a,b)
 {
   return ("s" == a and "w" == b or "w" == a and "s" == b or "a" == a and "d" == b or "d" == a and "a" == b)
 }
-OnWASD(ThisHotkey)
-{
-  hotkeys := ["w","a","s","d"]
-  For i in hotkeys {
-    if (ThisHotkey != i) {
-      if (!GetKeyState(i,"P")) {
-        SendInput "{Blind}{" . i . " up}"
-      } else {
-        if (Compare(i,ThisHotkey)) {
-          SendInput "{Blind}{" . i . " up}"
-        }
-      }
-      
-    } else {
-      SendInput "{Blind}{" . i . " down}"
-    }
-  }
-}
-OnWASDUp(ThisHotkey)
-{
-  SendInput "{Blind}{" . ThisHotkey . "}"
-  hotkeys := ["w","a","s","d"]
-  For i in hotkeys {
-    if (ThisHotkey != i) {
-      if (GetKeyState(i,"P")) {
-        SendInput "{Blind}{" . i . " down}"
-      }
-    }
-  }
-}
 OnKeyPress(ThisHotkey)
 {
   SetKeyDelay 25,25
@@ -271,25 +239,12 @@ SetClawsMacro(awd,awd2)
   }
 }
 
-WASDActivated_Click(awd,awd2) {
-  global
-  characters := "w,a,s,d"
-  Loop Parse, characters, "," {
-      HotIf hk => WASDActivated.Value
-      MacroName := A_LoopField
-      MacroUp := MacroName . " up"
-      Hotkey MacroName,OnWASD
-      Hotkey MacroUp,OnWASDUp
-      HotIf
-  }
-}
 macroActivated.OnEvent("Click",SetMacroKeys)
 DeactivateHotkey.OnEvent("Change",OnActivateHotkeyPress)
 undoActivated.OnEvent("Click",SetMacroKeys)
 boxingMacroActivated.OnEvent("Click",SetClawsMacro)
 keysToMacro.OnEvent("LoseFocus",SetMacroKeys)
 boxingBinds.OnEvent("LoseFocus",SetClawsMacro)
-WASDActivated.OnEvent("Click",WASDActivated_Click)
 QuickDeactivate.OnEvent("Click",OnQuickActivateToggle)
 
 window.Show()
