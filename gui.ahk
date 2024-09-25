@@ -1,8 +1,8 @@
 #Requires AutoHotkey v2.0
 #MaxThreadsPerHotkey 1
 #MaxThreadsBuffer true
-#MaxThreads 1
-; TODO: FIX KEYS STILL BEING HELD DOWN
+#MaxThreads 4
+; TODO: boxing knuckle flick (impossible actually)
 window := Gui("Border","acry macro")
 window.Add("Text","","boxing claws key: ")
 claws := window.Add("Edit","vclaws")
@@ -16,7 +16,7 @@ boxingMacroActivated := window.Add("CheckBox", "vBoxingMacroActivated", "activat
 macroActivated := window.Add("CheckBox", "vMacroActivated", "activate key macro (WARNING: BUGGY)")
 undoActivated := window.Add("CheckBox", "vUnBarrageActivated", "activate unbarrage/block macro")
 WASDActivated := window.Add("CheckBox", "vWASDMacroActivated", "activate wasd macro (WARNING: BUGGY)")
-window.Add("Text","","Deactivation hotkey: ")
+window.Add("Text","","deactivation hotkey: ")
 DeactivateHotkey := window.Add("Hotkey", "vWASDDeactivateHotkey")
 QuickDeactivate := window.Add("CheckBox", "vQuickDeactivate", "Quick Activate/deactivate (same as deactivation hotkey)")
 LoadConfigButton := window.Add("Button","vLoadConfig","Load Config")
@@ -98,6 +98,8 @@ loadConfig(fileName)
       keysToMacro.Text := aa1.Get(2)
     } else if (aa1.Get(1) == "MacroDelay") {
       MacroDelay.Text := StrSplit(setting,"|").Get(2)
+    } else if (aa1.Get(1) == "QuickDeactivate") {
+      DeactivateHotkey.Value := aa1.Get(2)
     }
   }
 }
@@ -113,7 +115,13 @@ SaveConfigClick(awd1,awd2)
 {
   filename := FileSelect("S",A_WorkingDir,,"Text Files (*.txt)") 
   if(filename) {
-    FileAppend(Format("claws|{1:s}`nboxingBinds|{2:s}`nkeysToMacro|{3:s}`nMacroDelay|{4:s}",claws.Text,boxingBinds.Text,keysToMacro.Text,MacroDelay.Text),filename . ".txt")
+    if(FileExist(filename)) {
+        FileDelete(filename)
+    }
+    if (!InStr(filename,".txt")) {
+      filename := filename . ".txt"
+    }
+    FileAppend(Format("claws|{1:s}`nboxingBinds|{2:s}`nkeysToMacro|{3:s}`nMacroDelay|{4:s}`nQuickDeactivate|{5:s}",claws.Text,boxingBinds.Text,keysToMacro.Text,MacroDelay.Text,DeactivateHotkey.Value),filename)
   }
 }
 SaveConfigButton.OnEvent("Click",SaveConfigClick)
@@ -188,18 +196,18 @@ OnKeyPress(ThisHotkey)
     return
   }
   if (undoActivated.Value) {
-    SendInput "{f up}"
-    SendInput "{e up}"
+    SendInput "{Blind}{f up}"
+    SendInput "{Blind}{e up}"
   }
   if(GetKeyState("LAlt","P")) {
-    SendInput "{alt up}"
+    SendInput "{Blind}{alt up}"
   }
   if(macroActivated.Value) {
     keybindsActive.push(SubStr(ThisHotkey,2))
     While GetKeyState(SubStr(ThisHotkey,2), "P") 
     {
       if (GetKeyState(SubStr(ThisHotkey,2), "P")) {
-        SendInput '{Blind}{' SubStr(ThisHotkey,2) ' down}'
+        SendInput '{Blind}{' . SubStr(ThisHotkey,2) . ' down}'
       } else {
         break
       }
@@ -230,13 +238,13 @@ OnKeyPressClaws(ThisHotkey)
     SendInput "{Blind}{" . SubStr(ThisHotkey,2) . " up}"
     return
   }
-  SendInput "{f up}"
-  SendInput "{e up}"
+  SendInput "{Blind}{f up}"
+  SendInput "{Blind}{e up}"
   if(GetKeyState("LAlt","P")) {
-    SendInput "{alt up}"
+    SendInput "{Blind}{alt up}"
   }
   SendInput claws.Text
-  SendInput "{Blind}{" . StrLower(SubStr(ThisHotkey,2,1)) . "}"
+  SendInput "{Blind}{" . StrLower(SubStr(ThisHotkey,2)) . "}"
   ; MsgBox(StrLower(SubStr(ThisHotkey,2,1)))
   SendInput claws.Text
   return
