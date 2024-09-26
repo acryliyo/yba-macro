@@ -98,6 +98,7 @@ loadConfig(fileName)
       MacroDelay.Text := StrSplit(setting,"|").Get(2)
     } else if (aa1.Get(1) == "QuickDeactivate") {
       DeactivateHotkey.Value := aa1.Get(2)
+      OnActivateHotkeyPress("a","b")
     }
   }
 }
